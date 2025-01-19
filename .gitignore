@@ -1,0 +1,71 @@
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.swp
+
+# Django specific files
+db.sqlite3
+*.log
+*.pot
+*.py[cod]
+*.so
+*.seed
+
+# Media and static files
+/static/
+/media/
+
+# Environment variables
+.env
+*.env
+
+# macOS specific files
+.DS_Store
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Test outputs
+coverage/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.tox/
+*.spec
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+*.egg-info
+
+# Migrations
+migrations/
+*/migrations/*
+
+# Celery beat schedule files
+celerybeat-schedule
+
+# Local dumps
+*.sql
+*.sqlite3
+*.dump
+*.bak
+
+# Temporary files
+*.tmp
+*.temp
