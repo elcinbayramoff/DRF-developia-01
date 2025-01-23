@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import status
 
 from django.http import HttpResponse
 from rest_framework.response import Response
@@ -18,8 +19,12 @@ DELETE -> Datanı silir
 
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST']) 
 def index(request):
+    """
+    Bütün articleları qaytarmaq GET
+    Article yaratmaq POST
+    """
     
     if request.method == 'GET':
         articles = Article.objects.all()
@@ -52,11 +57,15 @@ def index(request):
 PUT -> Update
 PATCH -> Partially Update
 """
-@api_view(['GET','PUT','PATCH'])
+@api_view(['GET','PUT','PATCH','DELETE'])
 def article_actions(request, pk):
     
     if request.method == 'PATCH':
-        article = Article.objects.get(id=pk)
+        try:
+            article = Article.objects.get(id=pk)
+            
+        except Article.DoesNotExist:
+            raise ValidationError({'detail':'This article does not exist'})
         
         serializer = ArticleSerializer(instance=article, data=request.data, partial=True)
         is_valid = serializer.is_valid()
@@ -68,7 +77,11 @@ def article_actions(request, pk):
             return Response(serializer.errors)
         
     elif request.method == 'PUT':
-        article = Article.objects.get(id=pk)
+        try:
+            article = Article.objects.get(id=pk)
+            
+        except Article.DoesNotExist:
+            raise ValidationError({'detail':'This article does not exist'})
         
         serializer = ArticleSerializer(instance=article, data=request.data)
         is_valid = serializer.is_valid()
@@ -90,3 +103,15 @@ def article_actions(request, pk):
         serializer = ArticleSerializer(article)
         
         return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+
+        try:
+            article = Article.objects.get(id=pk)
+            
+        except Article.DoesNotExist:
+            raise ValidationError({'detail':'This article does not exist'})
+        
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
