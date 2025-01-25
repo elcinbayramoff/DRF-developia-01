@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article
+from .models import Article, Comment
 from rest_framework.serializers import ValidationError
 """
 Back >JSON >FRONT
@@ -11,13 +11,20 @@ Deserializing
 json -> model
 """
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        
 class ArticleSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True, read_only=True)
+    
     class Meta:
         model = Article
         fields = '__all__'
         # fields = ['id','title','content','created_at']
-
-
+        
 # class ArticleSerializer(serializers.Serializer):
 #     title = serializers.CharField()
 #     content = serializers.CharField()
