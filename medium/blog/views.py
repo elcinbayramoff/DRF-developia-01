@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import status
-
+from rest_framework import generics
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -8,6 +8,8 @@ from .models import Article, Comment
 from .serializers import ArticleSerializer, CommentSerializer
 from rest_framework.validators import ValidationError
 from rest_framework.views import APIView
+from rest_framework import viewsets
+
 """
 GET - > All Articles +
 POST - > Create new article +
@@ -115,7 +117,10 @@ DELETE -> Datanı silir
 #         article.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
         
-        
+"""
+python manage.py makemigrations
+python manage.py migrate
+""" 
         
 @api_view(['GET', 'POST']) 
 def index_comment(request):
@@ -200,72 +205,94 @@ def comment_actions(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
         
 
-class ArticleAPIView(APIView):
-    def get(self, request, pk=None):
 
-        if pk:
-            try:
-                article = Article.objects.get(id=pk)
+
+# class ArticleAPIView(APIView):
+#     def get(self, request, pk=None):
+
+#         if pk:
+#             try:
+#                 article = Article.objects.get(id=pk)
                 
-            except Article.DoesNotExist:
-                raise ValidationError({'detail':'This article does not exist'})
+#             except Article.DoesNotExist:
+#                 raise ValidationError({'detail':'This article does not exist'})
                 
-            serializer = ArticleSerializer(article)
+#             serializer = ArticleSerializer(article)
             
-            return Response(serializer.data)
+#             return Response(serializer.data)
         
-        else:
-            articles = Article.objects.all()
-            serializer = ArticleSerializer(articles, many=True) # serializing
-            return Response(serializer.data)
+#         else:
+#             articles = Article.objects.all()
+#             serializer = ArticleSerializer(articles, many=True) # serializing
+#             return Response(serializer.data)
         
-    def post(self, request):
-        serializer = ArticleSerializer(data=request.data) #Create
+#     def post(self, request):
+#         serializer = ArticleSerializer(data=request.data) #Create
         
-        if serializer.is_valid():
-            data = serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+#         if serializer.is_valid():
+#             data = serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
         
-    def put(self, request, pk):
-        try:
-            article = Article.objects.get(id=pk)
+#     def put(self, request, pk):
+#         try:
+#             article = Article.objects.get(id=pk)
             
-        except Article.DoesNotExist:
-            raise ValidationError({'detail':'This article does not exist'})
+#         except Article.DoesNotExist:
+#             raise ValidationError({'detail':'This article does not exist'})
         
-        serializer = ArticleSerializer(instance=article, data=request.data)
-        is_valid = serializer.is_valid()
+#         serializer = ArticleSerializer(instance=article, data=request.data)
+#         is_valid = serializer.is_valid()
         
-        if is_valid:
-            data = serializer.save()
-            return Response({'detail':serializer.data})
-        else:
-            return Response(serializer.errors)
+#         if is_valid:
+#             data = serializer.save()
+#             return Response({'detail':serializer.data})
+#         else:
+#             return Response(serializer.errors)
         
-    def patch(self, request, pk):
-        try:
-            article = Article.objects.get(id=pk)
+#     def patch(self, request, pk):
+#         try:
+#             article = Article.objects.get(id=pk)
             
-        except Article.DoesNotExist:
-            raise ValidationError({'detail':'This article does not exist'})
+#         except Article.DoesNotExist:
+#             raise ValidationError({'detail':'This article does not exist'})
         
-        serializer = ArticleSerializer(instance=article, data=request.data, partial=True)
-        is_valid = serializer.is_valid()
+#         serializer = ArticleSerializer(instance=article, data=request.data, partial=True)
+#         is_valid = serializer.is_valid()
         
-        if is_valid:
-            data = serializer.save()
-            return Response({'detail':serializer.data})
-        else:
-            return Response(serializer.errors)
+#         if is_valid:
+#             data = serializer.save()
+#             return Response({'detail':serializer.data})
+#         else:
+#             return Response(serializer.errors)
         
-    def delete(self, request, pk):
-        try:
-            article = Article.objects.get(id=pk)
+#     def delete(self, request, pk):
+#         try:
+#             article = Article.objects.get(id=pk)
             
-        except Article.DoesNotExist:
-            raise ValidationError({'detail':'This article does not exist'})
+#         except Article.DoesNotExist:
+#             raise ValidationError({'detail':'This article does not exist'})
         
-        article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#         article.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ArticleDetailGenericAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    
+class ArticleGenericAPIView(generics.ListCreateAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+#CommentSerializer
+#Comment
+
+#mixins, generics, viewsets
+"""
+get - list, retrieve
+post - create
+put - update
+patch - update
+delete - destroy
+"""
