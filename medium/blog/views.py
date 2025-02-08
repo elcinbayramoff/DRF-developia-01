@@ -16,41 +16,92 @@ from rest_framework.decorators import action
 class ArticleModelViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        article = self.get_object()
+        article.view_count += 1
+        article.save()
+
+        serializer = self.get_serializer(article)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+    @action(detail=True,methods=['POST'])
+    def article_publish(self,request,pk=None):
+        article = self.get_object()
+        if article.is_published:
+            return Response({'detail':'The article has already been published'})
+        article.is_published = True
+        article.save()
+        return Response({'detail':'The article has been published'},status=status.HTTP_200_OK)
     
+    @action(detail=True,methods= ['POST'])
+    def like(self,request,pk=None):
+        article = self.get_object()
+        if article.is_published:
+            article.like_count +=1
+            article.save()
+            return Response ({'detail':'Article liked successfully'},status=status.HTTP_200_OK)
+        return Response({'detail':'The article is not published to put a like'})
+
+    @action(detail=True,methods=['POST'])
+    def dislike(self,request,pk=None):
+        if article.is_published and article.like_count > 0:
+            article = self.get_object() 
+            article.like_count -=1
+            article.save()
+            return Response({'detail':'Article disliked successfully'},status=status.HTTP_200_OK)
+        return Response({'detail':'The article is not published to put a like'})
+           
+    
+    @action(detail=False,methods=['GET'])
+    def popular_articles(self,request):
+        articles = Article.objects.filter(like_count__range=(5,10))
+        serializer = self.get_serializer(articles,many=True)
+        return Response(serializer.data)
+
 class CommentModelViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     
     @action(detail=True, methods=['POST'])
     def like(self, request, pk=None):
-        comment = self.get_object() #comments/7/like/ -> pk = 7 -> Comment.objects.get(id=7)
+        comment = self.get_object()
         comment.like_count += 1
         comment.save()
-        
         return Response({'detail':'Comment liked successfully'}, status=status.HTTP_200_OK)
     
-    
-    @action(detail=False, methods=['GET'])
-    def popular(self, request):
-        #like_count'u 7 ve 7den yuxarı olanlar >= 7 greater than equal gte
-        #gte - >=
-        #gt - >
-        #lt - <
-        #lte - <=
-        #exact - ==
-        #in - in 
-        #range - range
-        #isnull - ==None
-        
-        comments = Comment.objects.filter(like_count__range=(3,7))
-        serializer = self.get_serializer(comments, many=True)
-        
+    @action(detail=True,methods=['POST'])
+    def dislike(self,request,pk=None):
+        if comment.is_published and comment.like_count > 0:
+            comment = self.get_object()
+            comment.like_count -=1
+            comment.save()
+            return Response({'detail':'Comment disliked successfully'},status=status.HTTP_200_OK)
+        return Response({'detail':'The comment is not published to put a like'})
+
+
+    @action(detail=False,methods=['GET'])
+    def popular_comments(self,request):
+        comments = Comment.objects.filter(like_count__gte=7)
+        serializer = self.get_serializer(comments,many = True)
         return Response(serializer.data)
     
     
     
     
-    
+#like_count'u 7 ve 7den yuxarı olanlar >= 7 greater than equal gte
+#gte - >=
+#gt - >
+#lt - <
+#lte - <=
+#exact - ==
+#in - in 
+#range - range
+#isnull - ==None
+        
 """
 GET - > All Articles +
 POST - > Create new article +

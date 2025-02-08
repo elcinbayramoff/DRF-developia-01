@@ -64,4 +64,18 @@ class ArticleSerializer(serializers.ModelSerializer):
 #     #     print('content')
         
         
-    
+#Token
+
+"""
+dsfjksdnkjfnsdkjfnkjdsfnkjdsnfkjsdkf
+11001288283991 -> Elcin , expire_date = 100 days
+11001288283800 -> Rufet
+"""
+
+
+#Basic Authentication
+
+#JWT - Json Web Token
+
+#Header 
+# Authorization : Bearer <token>
