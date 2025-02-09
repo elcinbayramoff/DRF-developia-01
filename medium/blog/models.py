@@ -14,6 +14,21 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def increment_view_count(self):
+        self.view_count += 1
+        self.save()
+        self.creator.profile.update_balance(1)
+        
+    def increment_like_count(self):
+        self.like_count += 1
+        self.save()
+        self.creator.profile.update_balance(2)
+
+    def decrement_like_count(self):
+        if self.like_count > 0:
+            self.like_count -= 1
+            self.save()
+            self.creator.profile.update_balance(-2)
 
 class Comment(models.Model):
     article = models.ForeignKey(Article, related_name="comments", on_delete=models.CASCADE)

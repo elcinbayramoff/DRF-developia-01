@@ -12,21 +12,16 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 #CRUD - Create, Read, Update, Delete
-
+# Safe methods -> Read
 class ArticleModelViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        article = self.get_object()
-        article.view_count += 1
-        article.save()
-
+        article: Article = self.get_object()
+        article.increment_view_count()
         serializer = self.get_serializer(article)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 
     @action(detail=True,methods=['POST'])
     def article_publish(self,request,pk=None):
@@ -39,19 +34,17 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
     
     @action(detail=True,methods= ['POST'])
     def like(self,request,pk=None):
-        article = self.get_object()
+        article: Article = self.get_object()
         if article.is_published:
-            article.like_count +=1
-            article.save()
+            article.increment_like_count()
             return Response ({'detail':'Article liked successfully'},status=status.HTTP_200_OK)
         return Response({'detail':'The article is not published to put a like'})
 
     @action(detail=True,methods=['POST'])
     def dislike(self,request,pk=None):
-        if article.is_published and article.like_count > 0:
+        if article.is_published:
             article = self.get_object() 
-            article.like_count -=1
-            article.save()
+            article.decrement_like_count()
             return Response({'detail':'Article disliked successfully'},status=status.HTTP_200_OK)
         return Response({'detail':'The article is not published to put a like'})
            

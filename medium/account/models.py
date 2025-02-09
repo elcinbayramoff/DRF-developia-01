@@ -8,3 +8,9 @@ class Profile(models.Model):
 
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    
+    def update_balance(self, amount):
+        self.balance += amount
+        self.save()
+#User > Profile
+#Profile > User
