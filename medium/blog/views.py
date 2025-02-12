@@ -10,15 +10,22 @@ from rest_framework.validators import ValidationError
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 #CRUD - Create, Read, Update, Delete
 # Safe methods -> Read
 class ArticleModelViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-
+    permission_classes = [IsAuthenticated]
+    
     def retrieve(self, request, *args, **kwargs):
         article: Article = self.get_object()
+        print(request.user.id)
+        print(article.creator.id)
+        if not article.is_published:
+            return Response({'detail':'This article has not published yet'})
+        
         article.increment_view_count()
         serializer = self.get_serializer(article)
         return Response(serializer.data, status=status.HTTP_200_OK)
