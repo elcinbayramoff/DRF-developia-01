@@ -11,6 +11,15 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+
+
+class ArticlePageNumberPagination(PageNumberPagination):
+    page_size = 15
+    page_size_query_param = 'limit'
+    max_page_size = 20
 
 #CRUD - Create, Read, Update, Delete
 # Safe methods -> Read
@@ -18,12 +27,15 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = ArticlePageNumberPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['is_published','like_count']
+    search_fields = ['^title']
+    ordering_fields = ['title', 'content']
     
     def retrieve(self, request, *args, **kwargs):
         article: Article = self.get_object()
-        print(request.user.id)
-        print(article.creator.id)
-        if not article.is_published:
+        if not article.is_published and request.user.id != article.creator.id:
             return Response({'detail':'This article has not published yet'})
         
         article.increment_view_count()
@@ -32,6 +44,7 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=True,methods=['POST'])
     def article_publish(self,request,pk=None):
+        # status.HTTP_403_FORBIDDEN
         article = self.get_object()
         if article.is_published:
             return Response({'detail':'The article has already been published'})

@@ -5,8 +5,8 @@ from .models import Article, Comment
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ['id','title','creator']
-    list_editable = ['creator']
+    list_display = ['id','title','creator','is_published']
+    list_editable = ['creator','is_published']
     
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
