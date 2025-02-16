@@ -46,6 +46,10 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
     def article_publish(self,request,pk=None):
         # status.HTTP_403_FORBIDDEN
         article = self.get_object()
+        
+        if article.creator != request.user:
+            return Response({'detail':'You cannot publish this article'})
+        
         if article.is_published:
             return Response({'detail':'The article has already been published'})
         article.is_published = True
@@ -55,6 +59,8 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
     @action(detail=True,methods= ['POST'])
     def like(self,request,pk=None):
         article: Article = self.get_object()
+        if article.creator == request.user:
+            return Response({'detail':'You cannot like your own article'})
         if article.is_published:
             article.increment_like_count()
             return Response ({'detail':'Article liked successfully'},status=status.HTTP_200_OK)
@@ -82,6 +88,8 @@ class CommentModelViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'])
     def like(self, request, pk=None):
         comment = self.get_object()
+        if comment.creator == request.user:
+            return Response({'detail':'You cannot like your own comment'})
         comment.like_count += 1
         comment.save()
         return Response({'detail':'Comment liked successfully'}, status=status.HTTP_200_OK)
