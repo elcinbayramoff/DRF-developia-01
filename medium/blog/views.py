@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 class ArticlePageNumberPagination(PageNumberPagination):
     page_size = 15
@@ -32,6 +32,8 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
     filterset_fields = ['is_published','like_count']
     search_fields = ['^title']
     ordering_fields = ['title', 'content']
+    # throttle_classes = [UserRateThrottle]
+    throttle_scope = 'sustained'
     
     def retrieve(self, request, *args, **kwargs):
         article: Article = self.get_object()
@@ -84,7 +86,8 @@ class ArticleModelViewSet(viewsets.ModelViewSet):
 class CommentModelViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    
+    throttle_scope = 'sustained'
+
     @action(detail=True, methods=['POST'])
     def like(self, request, pk=None):
         comment = self.get_object()

@@ -14,3 +14,7 @@ class Profile(models.Model):
         self.save()
 #User > Profile
 #Profile > User
+
+class OTP(models.Model):
+    otp = models.CharField(max_length=6)
+    email = models.EmailField(unique=True)
